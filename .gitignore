@@ -1,0 +1,17 @@
+# Environment variables (never commit secrets)
+.env
+.env.local
+.env.*.local
+
+# Frontend dependencies and build
+web/node_modules/
+web/build/
+
+# Go build artifacts
+*.exe
+*.out
+bin/
+
+# OS files
+.DS_Store
+Thumbs.db
