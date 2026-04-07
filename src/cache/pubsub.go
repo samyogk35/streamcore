@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"log"
+	"strings"
 	"sync"
 
 	"streamcore/src/models"
@@ -40,7 +41,9 @@ func listenForTicks() {
 		}
 
 		if tickHandlerCallback != nil {
-			tickHandlerCallback(message.Channel, &tick)
+			// message.Channel is "ticker:AAPL", extract just the symbol
+			symbol := strings.TrimPrefix(message.Channel, "ticker:")
+			tickHandlerCallback(symbol, &tick)
 		}
 	}
 }

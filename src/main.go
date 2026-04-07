@@ -13,6 +13,7 @@ import (
 	"streamcore/src/config"
 	"streamcore/src/database"
 	"streamcore/src/stream"
+	"streamcore/src/ticker"
 )
 
 func main() {
@@ -23,7 +24,7 @@ func main() {
 	// Handle CORS
 	app.Use(cors.New(cors.Config{
 		AllowOrigins: "*",
-		AllowMethods: "POST, OPTIONS",
+		AllowMethods: "GET, POST, OPTIONS",
 		AllowHeaders: "Origin, Content-Type, Accept, Authorization",
 	}))
 
@@ -35,6 +36,8 @@ func main() {
 
 	app.Post("/api/auth/signup", auth.SignUp)
 	app.Post("/api/auth/login", auth.Login)
+
+	app.Get("/api/tickers/:symbol/history", auth.AuthorizationMiddleware, ticker.GetHistory)
 
 	// Secure websocket connection
 	app.Use("/ws", upgradeToWebSocket)
