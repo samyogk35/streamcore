@@ -48,6 +48,8 @@ func WebSocketHandler(conn *websocket.Conn) {
 				Server:    server,
 			}
 			PublishTick(tick, user)
+		case PingType:
+			conn.WriteJSON(map[string]interface{}{"type": "pong", "ts": msg.Ts, "server": server})
 		default:
 			log.Println("Unknown message type:", msg.Type)
 		}

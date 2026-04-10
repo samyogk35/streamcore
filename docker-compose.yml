@@ -114,20 +114,28 @@ services:
 
   zookeeper:
     container_name: sc2-zookeeper
-    image: wurstmeister/zookeeper
+    image: confluentinc/cp-zookeeper:7.6.0
     ports:
       - "${ZOOKEEPER_PORT}:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
     networks:
       - streamcore-network
 
   kafka:
     container_name: sc2-kafka
-    image: wurstmeister/kafka
+    image: confluentinc/cp-kafka:7.6.0
     ports:
       - "${KAFKA_PORT}:9092"
     environment:
-      - KAFKA_ADVERTISED_HOST_NAME=kafka
-      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    depends_on:
+      - zookeeper
     networks:
       - streamcore-network
 
@@ -141,6 +149,12 @@ services:
     environment:
       - REDIS_PORT=6379
       - KAFKA_PORT=9092
+      # Set ALPACA_MOCK=true in .env to generate synthetic ticks without
+      # real Alpaca credentials.  ALPACA_MOCK_RATE controls ticks/sec per
+      # symbol (default 5).  ALPACA_API_KEY/SECRET are not required in mock
+      # mode.
+      - ALPACA_MOCK=${ALPACA_MOCK:-false}
+      - ALPACA_MOCK_RATE=${ALPACA_MOCK_RATE:-5}
     depends_on:
       redis:
         condition: service_started

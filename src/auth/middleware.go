@@ -2,6 +2,7 @@ package auth
 
 import (
 	"log"
+	"strings"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gofiber/fiber/v2"
@@ -16,7 +17,8 @@ func AuthorizationMiddleware(ctx *fiber.Ctx) error {
 		return fiber.ErrUnauthorized
 	}
 
-	if err := ValidateJWTToken(authHeader); err != nil {
+	token := strings.TrimPrefix(authHeader, "Bearer ")
+	if err := ValidateJWTToken(token); err != nil {
 		log.Println("Error validating JWT token:", err)
 		return fiber.ErrUnauthorized
 	}

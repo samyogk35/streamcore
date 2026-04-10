@@ -37,7 +37,8 @@ func main() {
 	app.Post("/api/auth/signup", auth.SignUp)
 	app.Post("/api/auth/login", auth.Login)
 
-	app.Get("/api/tickers/:symbol/history", auth.AuthorizationMiddleware, ticker.GetHistory)
+	app.Get("/api/tickers/symbols", auth.AuthorizationMiddleware, ticker.GetSymbols)
+	app.Get("/api/tickers/history", auth.AuthorizationMiddleware, ticker.GetHistory)
 
 	// Secure websocket connection
 	app.Use("/ws", upgradeToWebSocket)

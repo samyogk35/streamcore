@@ -3,6 +3,7 @@ package config
 import (
 	"log"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -16,12 +17,22 @@ type AppConfig struct {
 	KafkaTopic      string
 	RedisHost       string
 	RedisPort       string
+	// Mock mode: generate synthetic ticks instead of connecting to Alpaca.
+	MockMode bool
+	// MockRateHz is ticks-per-second per symbol in mock mode (default 5).
+	MockRateHz int
 }
 
 var Config AppConfig
 
 func init() {
 	rawSymbols := os.Getenv("ALPACA_SYMBOLS")
+	mockMode, _ := strconv.ParseBool(os.Getenv("ALPACA_MOCK"))
+	mockRate, _ := strconv.Atoi(os.Getenv("ALPACA_MOCK_RATE"))
+	if mockRate <= 0 {
+		mockRate = 5
+	}
+
 	Config = AppConfig{
 		AlpacaAPIKey:    os.Getenv("ALPACA_API_KEY"),
 		AlpacaAPISecret: os.Getenv("ALPACA_API_SECRET"),
@@ -32,12 +43,16 @@ func init() {
 		KafkaTopic:      os.Getenv("KAFKA_TOPIC"),
 		RedisHost:       os.Getenv("REDIS_HOST"),
 		RedisPort:       os.Getenv("REDIS_PORT"),
+		MockMode:        mockMode,
+		MockRateHz:      mockRate,
 	}
 
-	if Config.AlpacaAPIKey == "" || Config.AlpacaAPISecret == "" {
-		log.Fatal("ALPACA_API_KEY and ALPACA_API_SECRET must be set")
+	if !Config.MockMode {
+		if Config.AlpacaAPIKey == "" || Config.AlpacaAPISecret == "" {
+			log.Fatal("ALPACA_API_KEY and ALPACA_API_SECRET must be set (or set ALPACA_MOCK=true)")
+		}
 	}
 	if Config.AlpacaStreamURL == "" {
-		Config.AlpacaStreamURL = "wss://stream.data.alpaca.markets/v2/iex"
+		Config.AlpacaStreamURL = "wss://stream.data.alpaca.markets/v1beta3/crypto/us"
 	}
 }

@@ -1,7 +1,7 @@
-import API from '../api/api';
 import React, { useState } from 'react';
-import HomeButton from './HomeButton';
-import { useNavigate } from 'react-router-dom';
+import API from '../api/api';
+import { Link, useNavigate } from 'react-router-dom';
+import '../App.css';
 
 function Signup() {
   const [username, setUsername] = useState('');
@@ -12,37 +12,64 @@ function Signup() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await API.post('/api/auth/signup', {
-        username,
-        password
-      });
-      console.log(response)
+      const response = await API.post('/api/auth/signup', { username, password });
       if (response.data.error) {
-        console.log(response.data)
-        setErrorMessage(response.data.message || 'Signup failed, Please try again.');
+        setErrorMessage(response.data.message || 'Signup failed. Please try again.');
         return;
       }
-      console.log('Signup successful', response.data);
       navigate('/login');
     } catch (error) {
-      console.error('Signup failed', error);
+      setErrorMessage('Connection failed. Check your network.');
     }
   };
 
   return (
-    <div className="bg-container">
-      <div className="chat-window">
-        <HomeButton />
-        <form onSubmit={handleSubmit} className='form'>
-          <div className='headings'>Let's Get Started!</div>
-          {errorMessage && <span className="error-message">*{errorMessage}</span>}
-          <br />
-          <div className='form-input-box'>
-            <input type="text" className='form-input' value={username} onChange={e => setUsername(e.target.value)} placeholder="Enter your name" />
-            <input type="password" className='form-input' value={password} onChange={e => setPassword(e.target.value)} placeholder="Create a Strong Password" />
+    <div className="sc-auth-page">
+      <div className="sc-auth-card">
+        <div className="auth-card-header">
+          <div className="auth-brand">
+            <span className="auth-brand-text">STREAMCORE</span>
+            <span className="auth-brand-ver">v2</span>
           </div>
-          <button type="submit" className='form-button'>Signup</button>
+          <div className="auth-subtitle">REAL-TIME MARKET DATA PLATFORM</div>
+        </div>
+
+        <div className="auth-card-title">CREATE ACCOUNT</div>
+
+        <form onSubmit={handleSubmit} className="auth-form">
+          {errorMessage && <div className="auth-error">{errorMessage}</div>}
+
+          <div className="auth-field">
+            <label className="auth-label">USERNAME</label>
+            <input
+              type="text"
+              className="auth-input"
+              value={username}
+              onChange={e => setUsername(e.target.value)}
+              placeholder="Choose a username"
+              autoFocus
+            />
+          </div>
+
+          <div className="auth-field">
+            <label className="auth-label">PASSWORD</label>
+            <input
+              type="password"
+              className="auth-input"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              placeholder="Create a strong password"
+            />
+          </div>
+
+          <button type="submit" className="auth-submit">REGISTER</button>
         </form>
+
+        <div className="auth-footer">
+          <span className="auth-footer-text">
+            Already registered?<Link to="/login" className="auth-footer-link">LOGIN</Link>
+          </span>
+        </div>
       </div>
     </div>
   );

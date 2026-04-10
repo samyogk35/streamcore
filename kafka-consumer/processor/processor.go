@@ -2,7 +2,6 @@ package processor
 
 import (
 	"log"
-	"time"
 
 	"streamcore-consumer/database"
 )
@@ -12,20 +11,21 @@ func ProcessTicks(ticks []MarketTick) {
 		return
 	}
 
-	for _, tick := range ticks {
-		var currentTime = time.Now()
-		dbData := database.DBMarketData{
+	dbData := make([]database.DBMarketData, len(ticks))
+	for i, tick := range ticks {
+		ts := tick.Timestamp
+		dbData[i] = database.DBMarketData{
 			Symbol:    tick.Symbol,
 			Price:     tick.Price,
 			Volume:    tick.Volume,
 			Side:      tick.Side,
-			Timestamp: &currentTime,
+			Timestamp: &ts,
 		}
-		log.Println("Saving market data to database:", dbData)
+	}
 
-		result := database.DB.CreateInBatches(&dbData, len(ticks))
-		if result.Error != nil {
-			log.Printf("Error saving market data to database: %v", result.Error)
-		}
+	log.Printf("Saving batch of %d ticks to database", len(dbData))
+	result := database.DB.CreateInBatches(dbData, len(dbData))
+	if result.Error != nil {
+		log.Printf("Error saving market data to database: %v", result.Error)
 	}
 }

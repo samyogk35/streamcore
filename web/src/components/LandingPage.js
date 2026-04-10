@@ -4,19 +4,24 @@ import '../App.css';
 
 function LandingPage() {
   return (
-    <div className="landing-container">
-      <div className="chat-window">
-        <div className="login-panel">
-          <div className='headings'>StreamCore</div>
-          <span>Real-time market data — distributed, low-latency, built in Go</span>
-          <br />
-          <br />
-          <div className="form-button">
-            <Link to="/signup"><button className="landing-button">Create a new Account</button></Link>
-            <Link to="/login"><button className="landing-button">Already a user? Login here</button></Link>
-          </div>
+    <div className="sc-landing">
+      <div className="landing-hero">
+        <div className="landing-brand">
+          STREAMCORE<span className="landing-ver">v2</span>
         </div>
+        <p className="landing-tagline">
+          Real-time market data streaming.<br />
+          <span className="landing-accent">Distributed</span> ingestion.{' '}
+          <span className="landing-accent">Low-latency</span> delivery.<br />
+          Built in Go.
+        </p>
       </div>
+
+      <div className="landing-actions">
+        <Link to="/signup" className="landing-btn landing-btn-primary">CREATE ACCOUNT</Link>
+        <Link to="/login" className="landing-btn">LOGIN</Link>
+      </div>
+
     </div>
   );
 }

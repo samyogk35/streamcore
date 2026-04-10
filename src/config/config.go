@@ -19,6 +19,8 @@ type AppConfig struct {
 	KafkaTopic       string
 	KafkaGroupID     string
 	ServerPort       string
+	AlpacaAPIKey     string
+	AlpacaAPISecret  string
 }
 
 var Config AppConfig
@@ -39,6 +41,8 @@ func init() {
 		PostgresUser:     os.Getenv("POSTGRES_USER"),
 		PostgresPassword: os.Getenv("POSTGRES_PASSWORD"),
 		PostgresDatabase: os.Getenv("POSTGRES_DATABASE"),
+		AlpacaAPIKey:     os.Getenv("ALPACA_API_KEY"),
+		AlpacaAPISecret:  os.Getenv("ALPACA_API_SECRET"),
 	}
 
 	if Config.RedisHost == "" || Config.PostgresHost == "" {

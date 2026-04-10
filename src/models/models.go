@@ -24,6 +24,7 @@ type WSMessage struct {
 	Price  float64 `json:"price"`
 	Volume float64 `json:"volume"`
 	Side   string  `json:"side"`
+	Ts     int64   `json:"ts"`
 }
 
 // MarketTick is the canonical market data event broadcast to subscribers.

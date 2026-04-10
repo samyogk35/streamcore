@@ -19,6 +19,7 @@ type AlpacaMsg struct {
 	Size      float64   `json:"s"`   // trade size (volume)
 	Timestamp time.Time `json:"t"`   // trade timestamp
 	Msg       string    `json:"msg"` // status message text
+	TakerSide string    `json:"tks"` // crypto only: "B"=buy, "S"=sell
 }
 
 type MarketTick struct {
@@ -26,6 +27,7 @@ type MarketTick struct {
 	Price     float64
 	Volume    float64
 	Timestamp time.Time
+	TakerSide string
 }
 
 type TickHandler func(tick MarketTick)
@@ -61,16 +63,21 @@ func Connect(handler TickHandler) error {
 		return err
 	}
 
-	// Subscribe to trades for all configured symbols
-	sub := subscribeMsg{
-		Action: "subscribe",
-		Trades: config.Config.AlpacaSymbols,
-	}
-	if err := conn.WriteJSON(sub); err != nil {
-		return err
+	// Subscribe in batches of 25 to avoid symbol limit errors
+	symbols := config.Config.AlpacaSymbols
+	for i := 0; i < len(symbols); i += 25 {
+		end := i + 25
+		if end > len(symbols) {
+			end = len(symbols)
+		}
+		batch := symbols[i:end]
+		sub := subscribeMsg{Action: "subscribe", Trades: batch}
+		if err := conn.WriteJSON(sub); err != nil {
+			return err
+		}
 	}
 
-	log.Printf("Alpaca: subscribed to trades for %v", config.Config.AlpacaSymbols)
+	log.Printf("Alpaca: subscribed to %d symbols", len(symbols))
 
 	for {
 		_, raw, err := conn.ReadMessage()
@@ -92,6 +99,7 @@ func Connect(handler TickHandler) error {
 					Price:     msg.Price,
 					Volume:    msg.Size,
 					Timestamp: msg.Timestamp,
+					TakerSide: msg.TakerSide,
 				})
 			case "success":
 				log.Printf("Alpaca: %s", msg.Msg)
